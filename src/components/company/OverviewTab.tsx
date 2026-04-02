@@ -16,6 +16,8 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  Tag,
+  LayoutGrid,
 } from "lucide-react";
 import { ClippedAreaChart } from "./ClippedAreaChart";
 
@@ -24,11 +26,229 @@ import { useCompanyDataStore } from "@/store/companyDataStore";
 import { useCompaniesStore } from "@/store/companiesStore";
 import { useFundraisingStore } from "@/store/fundraisingStore";
 import { useRevenueStore } from "@/store/revenueStore";
+import { usePickleballPricingStore } from "@/store/pickleballPricingStore";
+import type { PickleballPricingPayload } from "@/store/pickleballPricingStore";
 import { DemoDataWrapper } from "@/components/ui/DemoDataWrapper";
 
 interface OverviewTabProps {
   companySlug: string;
   themeGradient?: string;
+}
+
+// ─── Pickleball: helper to format a price range ───────────────────────────────
+function formatPriceRange(
+  min: number | null,
+  max: number | null,
+  currency: string,
+): string | null {
+  if (min == null && max == null) return null;
+  const sym = currency === "USD" ? "$" : currency;
+  if (min != null && max != null && min !== max)
+    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
+  const val = min ?? max;
+  return `${sym}${val!.toLocaleString()}`;
+}
+
+// ─── Pricing box (one category) ───────────────────────────────────────────────
+function PricingBox({
+  label,
+  icon,
+  min,
+  max,
+  currency,
+  notes,
+  accentClass,
+  iconBgClass,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  min: number | null;
+  max: number | null;
+  currency: string;
+  notes: string;
+  accentClass: string;
+  iconBgClass: string;
+}) {
+  const formatted = formatPriceRange(min, max, currency);
+  if (!formatted && !notes) return null;
+  return (
+    <div
+      className={`relative rounded-2xl border border-border/50 overflow-hidden transition-all duration-300 hover:shadow-md hover:border-border ${accentClass}`}
+    >
+      <div className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`p-2.5 rounded-xl border ${iconBgClass}`}>{icon}</div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            {label}
+          </p>
+        </div>
+        {formatted ? (
+          <p className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+            {formatted}
+          </p>
+        ) : (
+          <p className="text-sm italic text-muted-foreground mb-2">See notes</p>
+        )}
+        {notes && (
+          <p className="text-xs text-muted-foreground/80 leading-relaxed">{notes}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Facility card ────────────────────────────────────────────────────────────
+function FacilityCard({ facility }: { facility: PickleballPricingPayload["facilities"][number] }) {
+  const { pricing } = facility;
+  const boxes = [
+    {
+      label: "Hourly / Court",
+      icon: <DollarSign className="h-4 w-4 text-violet-500" />,
+      ...pricing.hourly_price,
+      accentClass: "bg-violet-500/5 hover:bg-violet-500/10",
+      iconBgClass: "bg-violet-500/10 border-violet-500/20",
+    },
+    {
+      label: "Open Play",
+      icon: <Users className="h-4 w-4 text-sky-500" />,
+      ...pricing.open_play,
+      accentClass: "bg-sky-500/5 hover:bg-sky-500/10",
+      iconBgClass: "bg-sky-500/10 border-sky-500/20",
+    },
+    {
+      label: "Membership",
+      icon: <Activity className="h-4 w-4 text-emerald-500" />,
+      ...pricing.membership,
+      accentClass: "bg-emerald-500/5 hover:bg-emerald-500/10",
+      iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
+    },
+    {
+      icon: <Tag className="h-4 w-4 text-amber-500" />,
+      ...pricing.extra_fee,
+      label: pricing.extra_fee.label || "Extra Fee",
+      accentClass: "bg-amber-500/5 hover:bg-amber-500/10",
+      iconBgClass: "bg-amber-500/10 border-amber-500/20",
+    },
+  ];
+  const hasAny = boxes.some((b) => b.min != null || b.max != null || b.notes);
+
+  return (
+    <div className="rounded-2xl border border-border/60 bg-card/50 overflow-hidden">
+      {/* coloured top bar */}
+      <div className="h-1 w-full bg-linear-to-r from-violet-500 via-purple-500 to-indigo-500" />
+      <div className="p-5">
+        {/* Facility header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-linear-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20 shrink-0">
+              <Building2 className="h-5 w-5 text-violet-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">{facility.name}</p>
+              <div className="flex items-center gap-1.5 text-muted-foreground mt-0.5">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span className="text-xs">{facility.location}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {facility.courts_count > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                <LayoutGrid className="h-3 w-3" />
+                {facility.courts_count} Courts
+              </span>
+            )}
+            <a
+              href={facility.facility_website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-colors"
+            >
+              Visit
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* Pricing boxes grid */}
+        {hasAny ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            {boxes.map((b) => (
+              <PricingBox key={b.label} {...b} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No pricing information available.
+          </p>
+        )}
+
+        {facility.source_url && (
+          <div className="flex justify-end mt-3 pt-3 border-t border-border/40">
+            <a
+              href={facility.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Pricing source <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Section wrapper ──────────────────────────────────────────────────────────
+function PickleballPricingSection({
+  payload,
+  generatedAt,
+}: {
+  payload: PickleballPricingPayload;
+  generatedAt: string;
+}) {
+  return (
+    <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm overflow-hidden">
+      <CardHeader className="border-b border-border/40 bg-zinc-50/50 dark:bg-zinc-900/50 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-linear-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+              <Activity className="h-5 w-5 text-violet-500" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">Pickleball Facility Pricing</CardTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {payload.region} · {payload.as_of_date_utc}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {payload.confidence_level && (
+              <div className="flex items-center gap-2 bg-accent/30 px-3 py-1.5 rounded-full border border-border/50">
+                <Activity className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium">{payload.confidence_level}% Confidence</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 bg-accent/20 px-3 py-1.5 rounded-full border border-border/50">
+              <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">
+                {payload.facilities.length} {payload.facilities.length === 1 ? "Facility" : "Facilities"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 space-y-4">
+        {payload.facilities.map((facility, i) => (
+          <FacilityCard key={`${facility.name}-${i}`} facility={facility} />
+        ))}
+        <p className="text-[11px] text-muted-foreground/50 text-center pt-2">
+          Last generated: {new Date(generatedAt).toLocaleString()}
+        </p>
+      </CardContent>
+    </Card>
+  );
 }
 
 const getFallbackData = () => ({
@@ -61,6 +281,12 @@ export default function OverviewTab({
     fetchRevenue,
     clearRevenue,
   } = useRevenueStore();
+  const {
+    pricingData: pickleballData,
+    isLoading: isPickleballLoading,
+    fetchPickleballPricing,
+    clearPickleballPricing,
+  } = usePickleballPricingStore();
   const fallbackData = getFallbackData();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showAllRounds, setShowAllRounds] = useState(false);
@@ -95,10 +321,14 @@ export default function OverviewTab({
     console.log("[OverviewTab] Triggering fetchRevenue for:", domain);
     fetchRevenue(domain);
 
+    // Fetch pickleball pricing
+    fetchPickleballPricing(domain);
+
     return () => {
       clearCompanyData();
       clearFundraising();
       clearRevenue();
+      clearPickleballPricing();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companySlug, companies]);
@@ -263,6 +493,22 @@ export default function OverviewTab({
           </CardContent>
         </Card>
       </div>
+
+      {/* ─── Pickleball Pricing ─────────────────────────────────────────── */}
+      {isPickleballLoading && (
+        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+          <CardContent className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </CardContent>
+        </Card>
+      )}
+      {!isPickleballLoading &&
+        pickleballData?.payload?.facilities?.length ? (
+          <PickleballPricingSection
+            payload={pickleballData.payload}
+            generatedAt={pickleballData.generated_at}
+          />
+        ) : null}
 
       {/* Funding & Valuation - Live API Data */}
       <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm overflow-hidden">

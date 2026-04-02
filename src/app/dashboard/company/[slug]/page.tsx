@@ -70,7 +70,7 @@ export default function CompanyPage() {
               >
                 {tab.label}
                 {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-primary to-accent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-primary via-primary to-accent" />
                 )}
               </button>
             ))}

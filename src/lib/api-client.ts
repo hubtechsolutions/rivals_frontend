@@ -94,12 +94,20 @@ class ApiClient {
           }
         }
 
+        let parsedError = errorData.message || errorData.detail;
+        if (typeof parsedError === "object" && parsedError !== null) {
+          parsedError =
+            parsedError.error ||
+            parsedError.message ||
+            JSON.stringify(parsedError);
+        }
+
         return {
           data: null,
           error:
-            errorData.message ||
-            errorData.detail ||
-            `Request failed with status ${response.status}`,
+            typeof parsedError === "string"
+              ? parsedError
+              : `Request failed with status ${response.status}`,
           status: response.status,
         };
       }
