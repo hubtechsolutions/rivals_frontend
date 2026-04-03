@@ -52,6 +52,16 @@ export interface PickleballPricingData {
   payload: PickleballPricingPayload;
 }
 
+export interface PickleballPricingRoot {
+  job_id?: number;
+  script_type?: string;
+  domain?: string;
+  data?: PickleballPricingData;
+  payload?: PickleballPricingPayload;
+  schema_version?: string;
+  generated_at?: string;
+}
+
 // --- Store ---
 
 interface PickleballPricingState {
@@ -82,7 +92,7 @@ export const usePickleballPricingStore = create<PickleballPricingStore>(
     fetchPickleballPricing: async (domain: string) => {
       set({ isLoading: true, error: null, currentDomain: domain });
 
-      const response = await apiClient.get<PickleballPricingData>(
+      const response = await apiClient.get<PickleballPricingRoot>(
         `/api/frontend/pickleball-pricing?domain=${encodeURIComponent(domain)}`,
       );
 
@@ -96,8 +106,13 @@ export const usePickleballPricingStore = create<PickleballPricingStore>(
       }
 
       if (response.data) {
+        // Handle deeply nested `data` object vs flattened object
+        const extractedData = response.data.data
+          ? response.data.data
+          : (response.data as unknown as PickleballPricingData);
+
         set({
-          pricingData: response.data,
+          pricingData: extractedData,
           isLoading: false,
           error: null,
         });
