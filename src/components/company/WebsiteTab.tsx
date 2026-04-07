@@ -234,514 +234,7 @@ export default function WebsiteTab({ companySlug }: WebsiteTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Overview Stats */}
-      <DemoDataWrapper>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-card to-card shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/20">
-                  <Globe className="h-5 w-5 text-primary" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Total Traffic
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">
-                {formatNumber(websiteAnalyticsData.overview.totalTraffic)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Monthly visitors
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className={`rounded-3xl border border-border/60 bg-gradient-to-br ${getTrustScoreBg(
-              websiteAnalyticsData.overview.trustScore,
-            )} shadow-lg`}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/20">
-                  <Shield className="h-5 w-5 text-green-600" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Trust Score
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p
-                className={`text-4xl font-bold ${getTrustScoreColor(
-                  websiteAnalyticsData.overview.trustScore,
-                )}`}
-              >
-                {websiteAnalyticsData.overview.trustScore}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">Out of 100</p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border border-border/60 bg-gradient-to-br from-accent/10 via-card to-card shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-accent/30">
-                  <Eye className="h-5 w-5 text-primary" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Page Views
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">
-                {formatNumber(websiteAnalyticsData.overview.pageViews)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Total page views
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-card to-card shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/20">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Unique Visitors
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">
-                {formatNumber(websiteAnalyticsData.overview.uniqueVisitors)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Monthly unique users
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border border-border/60 bg-gradient-to-br from-accent/10 via-card to-card shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-accent/30">
-                  <MousePointer className="h-5 w-5 text-primary" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Bounce Rate
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">
-                {websiteAnalyticsData.overview.bounceRate}%
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Visitors leaving quickly
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-card to-card shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/20">
-                  <Clock className="h-5 w-5 text-primary" />
-                </div>
-                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Avg. Session
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">
-                {websiteAnalyticsData.overview.avgSessionDuration}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Average time on site
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </DemoDataWrapper>
-
-      {/* Traffic Trend */}
-      <DemoDataWrapper>
-        <WebsiteTrafficChart data={websiteAnalyticsData.trafficTrend} />
-      </DemoDataWrapper>
-
-      {/* Top Keywords */}
-      <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-accent/20">
-              <Search className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-xl">Keyword Suggestions</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {keywordSuggestions.length > 0
-                  ? `${keywordSuggestions.length} keyword suggestions from search data`
-                  : "Highest ranking keywords driving organic traffic"}
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {keywordSuggestionsLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : keywordSuggestions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Rank
-                    </th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Keyword Suggestion
-                    </th>
-                    <th className="text-center py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Word Count
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Length
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {keywordSuggestions.map((keyword) => (
-                    <tr
-                      key={keyword.rank}
-                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
-                    >
-                      <td className="py-4 px-4">
-                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                          #{keyword.rank}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-2">
-                          <Hash className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-semibold text-foreground">
-                            {keyword.suggestion}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-foreground font-semibold text-sm">
-                          {keyword.word_count} words
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right font-semibold text-muted-foreground">
-                        {keyword.length} chars
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            // Fallback to mock data
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Keyword
-                    </th>
-                    <th className="text-center py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Position
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Search Volume
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Difficulty
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {websiteAnalyticsData.topKeywords.map((keyword, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
-                    >
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                            #{index + 1}
-                          </span>
-                          <span className="font-semibold text-foreground">
-                            {keyword.keyword}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 text-green-600 font-semibold text-sm">
-                          <TrendingUp className="h-3 w-3" />#{keyword.position}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right font-semibold text-foreground">
-                        {formatNumber(keyword.volume)}/mo
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="w-24 bg-border/40 rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full ${
-                                keyword.difficulty >= 70
-                                  ? "bg-red-500"
-                                  : keyword.difficulty >= 50
-                                    ? "bg-yellow-500"
-                                    : "bg-green-500"
-                              }`}
-                              style={{ width: `${keyword.difficulty}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-semibold text-foreground w-8">
-                            {keyword.difficulty}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Top Pages */}
-      <DemoDataWrapper>
-        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Top Performing Pages</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Most visited pages and their performance metrics
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Page
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Views
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Avg. Time
-                    </th>
-                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
-                      Bounce Rate
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {websiteAnalyticsData.topPages.map((page, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
-                    >
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                            #{index + 1}
-                          </span>
-                          <span className="font-semibold text-foreground font-mono text-sm">
-                            {page.page}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-right font-semibold text-foreground">
-                        {formatNumber(page.views)}
-                      </td>
-                      <td className="py-4 px-4 text-right font-semibold text-foreground">
-                        {page.avgTime}
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <span
-                          className={`font-semibold ${
-                            page.bounceRate < 40
-                              ? "text-green-600"
-                              : page.bounceRate < 50
-                                ? "text-yellow-600"
-                                : "text-red-600"
-                          }`}
-                        >
-                          {page.bounceRate}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </DemoDataWrapper>
-
-      {/* Word Frequency by Sentiment */}
-      <DemoDataWrapper>
-        <div className="flex items-center gap-3 mt-8 mb-4">
-          <Hash className="h-6 w-6 text-primary" />
-          <h2 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-accent">
-            Word Frequency Analysis
-          </h2>
-          {wordCountLoading && (
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground ml-2" />
-          )}
-        </div>
-
-        {wordCountData ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Positive Words */}
-            <Card className="rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-card to-card shadow-sm">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <ThumbsUp className="h-5 w-5 text-cyan-600" />
-                  <CardTitle className="text-lg text-cyan-600">
-                    Positive Keywords
-                  </CardTitle>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Most frequent positive words
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {wordCountData.positive.slice(0, 10).map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
-                          #{index + 1}
-                        </span>
-                        <span className="font-semibold text-foreground">
-                          {item.word}
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-cyan-600">
-                        {formatNumber(item.count)}
-                      </span>
-                    </div>
-                  ))}
-                  {wordCountData.positive.length === 0 && (
-                    <div className="text-center text-sm text-muted-foreground py-4">
-                      No positive words found
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Neutral Words */}
-            <Card className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-500/5 via-card to-card shadow-sm">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Minus className="h-5 w-5 text-purple-600" />
-                  <CardTitle className="text-lg text-purple-600">
-                    Neutral Keywords
-                  </CardTitle>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Most frequent neutral words
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {wordCountData.neutral.slice(0, 10).map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
-                          #{index + 1}
-                        </span>
-                        <span className="font-semibold text-foreground">
-                          {item.word}
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-purple-600">
-                        {formatNumber(item.count)}
-                      </span>
-                    </div>
-                  ))}
-                  {wordCountData.neutral.length === 0 && (
-                    <div className="text-center text-sm text-muted-foreground py-4">
-                      No neutral words found
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Negative Words */}
-            <Card className="rounded-3xl border border-slate-500/20 bg-gradient-to-br from-slate-500/5 via-card to-card shadow-sm">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <ThumbsDown className="h-5 w-5 text-slate-600" />
-                  <CardTitle className="text-lg text-slate-600">
-                    Negative Keywords
-                  </CardTitle>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Most frequent negative words
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {wordCountData.negative.slice(0, 10).map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
-                          #{index + 1}
-                        </span>
-                        <span className="font-semibold text-foreground">
-                          {item.word}
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-slate-600">
-                        {formatNumber(item.count)}
-                      </span>
-                    </div>
-                  ))}
-                  {wordCountData.negative.length === 0 && (
-                    <div className="text-center text-sm text-muted-foreground py-4">
-                      No negative words found
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : !wordCountLoading ? (
-          <div className="text-center text-sm text-muted-foreground py-8">
-            No word count analysis available for this domain yet.
-          </div>
-        ) : null}
-      </DemoDataWrapper>
-
-      {/* SEO Analytics Section */}
-      <div className="flex items-center justify-between mt-8">
+          <div className="flex items-center justify-between mt-8">
         <div>
           <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-accent w-fit">
             Website & SEO Analytics
@@ -1229,6 +722,370 @@ export default function WebsiteTab({ companySlug }: WebsiteTabProps) {
           <p>No SEO data available for this company.</p>
         </div>
       )}
+      <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-accent/20">
+              <Search className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">Keyword Suggestions</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {keywordSuggestions.length > 0
+                  ? `${keywordSuggestions.length} keyword suggestions from search data`
+                  : "Highest ranking keywords driving organic traffic"}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {keywordSuggestionsLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : keywordSuggestions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Rank
+                    </th>
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Keyword Suggestion
+                    </th>
+                    <th className="text-center py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Word Count
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Length
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {keywordSuggestions.map((keyword) => (
+                    <tr
+                      key={keyword.rank}
+                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
+                    >
+                      <td className="py-4 px-4">
+                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                          #{keyword.rank}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <Hash className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-semibold text-foreground">
+                            {keyword.suggestion}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-foreground font-semibold text-sm">
+                          {keyword.word_count} words
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-right font-semibold text-muted-foreground">
+                        {keyword.length} chars
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            // Fallback to mock data
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Keyword
+                    </th>
+                    <th className="text-center py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Position
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Search Volume
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Difficulty
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {websiteAnalyticsData.topKeywords.map((keyword, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
+                    >
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                            #{index + 1}
+                          </span>
+                          <span className="font-semibold text-foreground">
+                            {keyword.keyword}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 text-green-600 font-semibold text-sm">
+                          <TrendingUp className="h-3 w-3" />#{keyword.position}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-right font-semibold text-foreground">
+                        {formatNumber(keyword.volume)}/mo
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-24 bg-border/40 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                keyword.difficulty >= 70
+                                  ? "bg-red-500"
+                                  : keyword.difficulty >= 50
+                                    ? "bg-yellow-500"
+                                    : "bg-green-500"
+                              }`}
+                              style={{ width: `${keyword.difficulty}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-semibold text-foreground w-8">
+                            {keyword.difficulty}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Top Pages */}
+      {/* <DemoDataWrapper>
+        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Top Performing Pages</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Most visited pages and their performance metrics
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Page
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Views
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Avg. Time
+                    </th>
+                    <th className="text-right py-4 px-4 text-sm font-semibold text-muted-foreground">
+                      Bounce Rate
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {websiteAnalyticsData.topPages.map((page, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-border/50 hover:bg-accent/5 transition-colors"
+                    >
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                            #{index + 1}
+                          </span>
+                          <span className="font-semibold text-foreground font-mono text-sm">
+                            {page.page}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-right font-semibold text-foreground">
+                        {formatNumber(page.views)}
+                      </td>
+                      <td className="py-4 px-4 text-right font-semibold text-foreground">
+                        {page.avgTime}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <span
+                          className={`font-semibold ${
+                            page.bounceRate < 40
+                              ? "text-green-600"
+                              : page.bounceRate < 50
+                                ? "text-yellow-600"
+                                : "text-red-600"
+                          }`}
+                        >
+                          {page.bounceRate}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </DemoDataWrapper> */}
+
+      {/* Word Frequency by Sentiment */}
+      <div>
+        <div className="flex items-center gap-3 mt-8 mb-4">
+          <Hash className="h-6 w-6 text-primary" />
+          <h2 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-accent">
+            Word Frequency Analysis
+          </h2>
+          {wordCountLoading && (
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground ml-2" />
+          )}
+        </div>
+
+        {wordCountData ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Positive Words */}
+            <Card className="rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-card to-card shadow-sm">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <ThumbsUp className="h-5 w-5 text-cyan-600" />
+                  <CardTitle className="text-lg text-cyan-600">
+                    Positive Keywords
+                  </CardTitle>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Most frequent positive words
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {wordCountData.positive.slice(0, 10).map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
+                          #{index + 1}
+                        </span>
+                        <span className="font-semibold text-foreground">
+                          {item.word}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-cyan-600">
+                        {formatNumber(item.count)}
+                      </span>
+                    </div>
+                  ))}
+                  {wordCountData.positive.length === 0 && (
+                    <div className="text-center text-sm text-muted-foreground py-4">
+                      No positive words found
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Neutral Words */}
+            <Card className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-500/5 via-card to-card shadow-sm">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Minus className="h-5 w-5 text-purple-600" />
+                  <CardTitle className="text-lg text-purple-600">
+                    Neutral Keywords
+                  </CardTitle>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Most frequent neutral words
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {wordCountData.neutral.slice(0, 10).map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
+                          #{index + 1}
+                        </span>
+                        <span className="font-semibold text-foreground">
+                          {item.word}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-purple-600">
+                        {formatNumber(item.count)}
+                      </span>
+                    </div>
+                  ))}
+                  {wordCountData.neutral.length === 0 && (
+                    <div className="text-center text-sm text-muted-foreground py-4">
+                      No neutral words found
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Negative Words */}
+            <Card className="rounded-3xl border border-slate-500/20 bg-gradient-to-br from-slate-500/5 via-card to-card shadow-sm">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <ThumbsDown className="h-5 w-5 text-slate-600" />
+                  <CardTitle className="text-lg text-slate-600">
+                    Negative Keywords
+                  </CardTitle>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Most frequent negative words
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {wordCountData.negative.slice(0, 10).map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 rounded-xl bg-accent/5 hover:bg-accent/10 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground bg-accent/10 px-2 py-1 rounded">
+                          #{index + 1}
+                        </span>
+                        <span className="font-semibold text-foreground">
+                          {item.word}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-600">
+                        {formatNumber(item.count)}
+                      </span>
+                    </div>
+                  ))}
+                  {wordCountData.negative.length === 0 && (
+                    <div className="text-center text-sm text-muted-foreground py-4">
+                      No negative words found
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : !wordCountLoading ? (
+          <div className="text-center text-sm text-muted-foreground py-8">
+            No word count analysis available for this domain yet.
+          </div>
+        ) : null}
+      </div>
+
+  
     </div>
   );
 }
