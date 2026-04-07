@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
+import { useAuthStore } from "@/store/authStore";
 
 interface MenuItem {
   label: string;
@@ -39,7 +40,7 @@ function AvatarFallback({ name }: { name?: string }) {
   const initial = name ? name.charAt(0).toUpperCase() : <User className="w-6 h-6" />
 
   return (
-    <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-semibold ring-4 ring-background">
+    <div className="w-[72px] h-[72px] rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-semibold ring-4 ring-background">
       {initial}
     </div>
   )
@@ -52,6 +53,7 @@ export default function Profile01({
 }: Profile01Props = defaultProfile) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { logout: storeLogout } = useAuthStore();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -61,8 +63,7 @@ export default function Profile01({
 
       if (!token) {
         // If no token, just clear storage and redirect
-        localStorage.removeItem("token");
-        localStorage.removeItem("token_type");
+        storeLogout();
         router.push("/login");
         return;
       }
@@ -77,9 +78,8 @@ export default function Profile01({
         toast.error("Error during logout, but you have been signed out locally");
       }
 
-      // Remove tokens from storage
-      localStorage.removeItem("token");
-      localStorage.removeItem("token_type");
+      // Consistent logout via store (this clears localStorage/cookies as well)
+      storeLogout();
 
       // Redirect to login page
       router.push("/login");
@@ -89,9 +89,8 @@ export default function Profile01({
       toast.error(errorMessage || "An error occurred during logout");
       console.error("Logout error:", error);
 
-      // Still clear storage and redirect even on error
-      localStorage.removeItem("token");
-      localStorage.removeItem("token_type");
+      // Still clear via store and redirect even on error
+      storeLogout();
       router.push("/login");
     } finally {
       setIsLoggingOut(false);
