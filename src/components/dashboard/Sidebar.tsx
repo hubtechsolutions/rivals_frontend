@@ -7,13 +7,16 @@ import {
   Menu,
   Plus,
   Loader2,
+  Trash2,
 } from "lucide-react";
 
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import AddCompetitorModal from "./AddCompetitorModal";
+import DeleteCompetitorModal from "./DeleteCompetitorModal";
 import { useCompaniesStore } from "@/store";
 
 function NavItem({
@@ -43,7 +46,7 @@ function NavItem({
         }`}
     >
       <Icon
-        className={`h-4 w-4 mr-3 flex-shrink-0 ${isActive ? "text-primary" : ""
+        className={`h-4 w-4 mr-3 shrink-0 ${isActive ? "text-primary" : ""
           }`}
       />
       {children}
@@ -54,9 +57,13 @@ function NavItem({
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<{ domain: string, id: number, brandName: string } | null>(null);
+  
   const pathname = usePathname();
+  const router = useRouter();
 
-  const { companies, isLoading, fetchCompanies } = useCompaniesStore();
+  const { companies, isLoading, fetchCompanies, deleteCompany } = useCompaniesStore();
 
   useEffect(() => {
     fetchCompanies();
@@ -70,18 +77,44 @@ export default function Sidebar() {
     return brandName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   }
 
+  function handleDeleteClick(e: React.MouseEvent, domain: string, id: number, brandName: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    setCompanyToDelete({ domain, id, brandName });
+  }
+
+  async function confirmDeleteCompany() {
+    if (!companyToDelete) return;
+    
+    setIsDeleting(true);
+    const result = await deleteCompany(companyToDelete.domain);
+    setIsDeleting(false);
+
+    if (result.success) {
+      toast.success(result.message);
+      
+      const companySlug = getCompanySlug(companyToDelete.brandName);
+      if (pathname.includes(`/dashboard/company/${companySlug}`)) {
+        router.push("/dashboard");
+      }
+      setCompanyToDelete(null);
+    } else {
+      toast.error(result.message);
+    }
+  }
+
   return (
     <>
       <button
         type="button"
-        className="lg:hidden fixed top-4 left-4 z-[70] p-2 rounded-lg bg-background shadow-md"
+        className="lg:hidden fixed top-4 left-4 z-70 p-2 rounded-lg bg-background shadow-md"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         <Menu className="h-5 w-5 text-muted-foreground" />
       </button>
       <nav
         className={`
-                fixed inset-y-0 left-0 z-[70] w-64 bg-background transform transition-transform duration-200 ease-in-out
+                fixed inset-y-0 left-0 z-70 w-64 bg-background transform transition-transform duration-200 ease-in-out
                 lg:translate-x-0 lg:static lg:w-64 border-r border-border
                 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
             `}
@@ -125,7 +158,7 @@ export default function Sidebar() {
                   </span>
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="p-1.5 rounded-md bg-gradient-to-r from-purple-600 to-blue-600 text-white 
+                    className="p-1.5 rounded-md bg-linear-to-r from-purple-600 to-blue-600 text-white 
                       hover:from-purple-700 hover:to-blue-700 transition-all hover:scale-105 active:scale-95
                       shadow-sm hover:shadow-md cursor-pointer"
                     title="Add Competitor"
@@ -145,15 +178,28 @@ export default function Sidebar() {
                     </div>
                   ) : (
                     companies.map((company) => (
-                      <NavItem
-                        key={company.id}
-                        href={`/dashboard/company/${getCompanySlug(company.brand_name)}`}
-                        icon={Building2}
-                        pathname={pathname}
-                        onNavigate={handleNavigation}
-                      >
-                        {company.brand_name}
-                      </NavItem>
+                      <div key={company.id} className="relative group">
+                        <NavItem
+                          href={`/dashboard/company/${getCompanySlug(company.brand_name)}`}
+                          icon={Building2}
+                          pathname={pathname}
+                          onNavigate={handleNavigation}
+                        >
+                          <span className="pr-6 truncate block">{company.brand_name}</span>
+                        </NavItem>
+                        <button
+                          onClick={(e) => handleDeleteClick(e, company.domain, company.id, company.brand_name)}
+                          disabled={isDeleting}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 opacity-0 group-[&:hover]:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md disabled:opacity-50"
+                          title={`Delete ${company.brand_name}`}
+                        >
+                          {isDeleting && companyToDelete?.id === company.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
                     ))
                   )}
                 </div>
@@ -186,7 +232,7 @@ export default function Sidebar() {
 
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[65] lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-65 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -194,6 +240,14 @@ export default function Sidebar() {
       <AddCompetitorModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <DeleteCompetitorModal
+        isOpen={!!companyToDelete}
+        onClose={() => setCompanyToDelete(null)}
+        onConfirm={confirmDeleteCompany}
+        isLoading={isDeleting}
+        brandName={companyToDelete?.brandName || ""}
       />
     </>
   );

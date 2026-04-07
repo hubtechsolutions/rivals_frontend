@@ -35,6 +35,7 @@ interface CompaniesActions {
   fetchCompanies: (includeInactive?: boolean) => Promise<void>;
   addCompanyToList: (company: Company) => void;
   removeCompanyFromList: (companyId: number) => void;
+  deleteCompany: (domain: string) => Promise<{ success: boolean; message: string }>;
   clearCompanies: () => void;
 }
 
@@ -90,6 +91,40 @@ export const useCompaniesStore = create<CompaniesStore>((set, get) => ({
       companies: companies.filter((c) => c.id !== companyId),
       totalCount: Math.max(0, get().totalCount - 1),
     });
+  },
+
+  deleteCompany: async (domain: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await apiClient.delete<{ 
+        success: boolean; 
+        message: string; 
+        deleted_counts: Record<string, number>;
+      }>(`/api/company/${domain}`);
+
+      if (response.error) {
+        set({
+          isLoading: false,
+          error: response.error,
+        });
+        return { success: false, message: response.error };
+      }
+
+      // Automatically remove from local store on success
+      const { companies } = get();
+      set({
+        companies: companies.filter((c) => c.domain !== domain),
+        totalCount: Math.max(0, get().totalCount - 1),
+        isLoading: false,
+        error: null,
+      });
+
+      return { success: true, message: response.data?.message || "Company deleted successfully" };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Failed to delete company";
+      set({ isLoading: false, error: msg });
+      return { success: false, message: msg };
+    }
   },
 
   clearCompanies: () => {
