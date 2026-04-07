@@ -512,369 +512,308 @@ export default function OverviewTab({
         ) : null}
 
       {/* Funding & Valuation - Live API Data */}
-      <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm overflow-hidden">
-        <CardHeader className="border-b border-border/40 bg-zinc-50/50 dark:bg-zinc-900/50 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
-                <DollarSign className="h-5 w-5 text-indigo-500" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">Financial Overview</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Funding history and valuation metrics
-                </p>
-              </div>
-            </div>
-            {fundraisingData?.confidence_level && (
-              <div className="flex items-center gap-2 bg-accent/30 px-3 py-1.5 rounded-full border border-border/50">
-                <Activity className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-foreground">
-                  {fundraisingData.confidence_level}% Confidence
-                </span>
-                <span className="text-[10px] text-muted-foreground border-l border-border/50 pl-2 ml-1">
-                  Updated{" "}
-                  {new Date(fundraisingData.as_of_date).toLocaleDateString()}
-                </span>
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          {isFundraisingLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 space-y-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                <Loader2 className="relative h-10 w-10 text-primary animate-spin" />
-              </div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Gathering financial data...
-              </p>
-            </div>
-          ) : fundraisingError ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-              <div className="p-3 rounded-full bg-destructive/10">
-                <AlertCircle className="h-6 w-6 text-destructive" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">Data Unavailable</p>
-                <p className="text-sm text-muted-foreground">
-                  Could not load fundraising information.
-                </p>
-              </div>
-            </div>
-          ) : fundraisingData ? (
-            <div className="space-y-8">
-              {/* Primary Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Valuation - Featured */}
-                <div className="md:col-span-2 p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <TrendingUp className="h-16 w-16 text-primary rotate-12" />
-                  </div>
-                  <p className="text-sm font-medium text-primary mb-1 uppercase tracking-wider">
-                    Est. Valuation
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-bold text-foreground tracking-tight">
-                      {fundraisingData.summary.valuation || "—"}
-                    </p>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Latest post-money valuation
-                  </p>
+      {(isFundraisingLoading || fundraisingData) && (
+        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm overflow-hidden">
+          <CardHeader className="border-b border-border/40 bg-zinc-50/50 dark:bg-zinc-900/50 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-linear-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                  <DollarSign className="h-5 w-5 text-indigo-500" />
                 </div>
-
-                {/* Total Funding */}
-                <div className="md:col-span-2 p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-500/20 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <DollarSign className="h-16 w-16 text-indigo-500 -rotate-12" />
-                  </div>
-                  <p className="text-sm font-medium text-indigo-500 mb-1 uppercase tracking-wider">
-                    Total Funding
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-bold text-foreground tracking-tight">
-                      {fundraisingData.summary.total_funding}
-                    </p>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Total capital raised to date
+                <div>
+                  <CardTitle className="text-xl">Financial Overview</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Funding history and valuation metrics
                   </p>
                 </div>
               </div>
-
-              {/* Secondary Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                    Latest Round Size
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {fundraisingData.summary.latest_raised}
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                    Total Rounds
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {fundraisingData.summary.total_rounds}
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                    Last Deal Date
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {fundraisingData.summary.last_round}
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">
-                    Lead Investor
-                  </p>
-                  <p
-                    className="text-sm font-semibold text-foreground truncate"
-                    title={fundraisingData.summary.lead_investor}
-                  >
-                    {fundraisingData.summary.lead_investor || "—"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Funding Rounds Timeline */}
-              {fundraisingData.rounds && fundraisingData.rounds.length > 0 && (
-                <div className="pt-2">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                        <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                      Investment History
-                    </h3>
-                    {fundraisingData.rounds.length > 3 && (
-                      <button
-                        onClick={() => setShowAllRounds(!showAllRounds)}
-                        className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 transition-all"
-                      >
-                        {showAllRounds
-                          ? "Show Recent"
-                          : `View All ${fundraisingData.rounds.length} Rounds`}
-                        {showAllRounds ? (
-                          <ChevronUp className="h-3.5 w-3.5" />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5 group-hover:translate-y-0.5 transition-transform" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="relative pl-2">
-                    {/* Vertical line running through the timeline */}
-                    <div className="absolute left-[19px] top-4 bottom-8 w-px bg-gradient-to-b from-border via-border to-transparent" />
-
-                    <div className="space-y-6">
-                      {(showAllRounds
-                        ? fundraisingData.rounds
-                        : fundraisingData.rounds.slice(0, 3)
-                      ).map((round, index) => {
-                        const roundDate = round.round_date
-                          ? new Date(round.round_date).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "long",
-                                day: "numeric",
-                                year: "numeric",
-                              },
-                            )
-                          : "Date Unknown";
-
-                        // Determine colors based on round type string for visual variety
-                        const isIPO = round.round_type
-                          .toLowerCase()
-                          .includes("ipo");
-
-                        return (
-                          <div key={index} className="relative group">
-                            <div className="flex gap-6">
-                              {/* Timeline Node */}
-                              <div className="relative pt-1">
-                                <div
-                                  className={cn(
-                                    "w-10 h-10 rounded-xl flex items-center justify-center border-2 shadow-sm z-10 relative transition-transform group-hover:scale-110 duration-200",
-                                    index === 0
-                                      ? "bg-primary text-primary-foreground border-primary"
-                                      : "bg-card text-muted-foreground border-border group-hover:border-primary/50 group-hover:text-primary",
-                                  )}
-                                >
-                                  {isIPO ? (
-                                    <TrendingUp className="h-5 w-5" />
-                                  ) : (
-                                    <DollarSign className="h-5 w-5" />
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Content Card */}
-                              <div className="flex-1 min-w-0">
-                                <div className="p-5 rounded-2xl bg-gradient-to-r from-accent/5 to-transparent border border-border/60 hover:border-primary/20 hover:from-accent/10 hover:shadow-md transition-all duration-300">
-                                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
-                                    <div>
-                                      <div className="flex items-center gap-3 mb-1">
-                                        <h4 className="text-base font-bold text-foreground">
-                                          {round.round_type}
-                                        </h4>
-                                        {index === 0 && (
-                                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20">
-                                            Latest
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Calendar className="h-3.5 w-3.5" />
-                                        {roundDate}
-                                      </div>
-                                    </div>
-                                    <div className="text-left md:text-right">
-                                      <div className="text-lg font-bold text-foreground">
-                                        {round.amount || "Undisclosed Amount"}
-                                      </div>
-                                      <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mt-0.5">
-                                        Raised
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {round.investors &&
-                                    round.investors.length > 0 && (
-                                      <div className="mt-4 pt-4 border-t border-border/40">
-                                        <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
-                                          <Users className="h-3.5 w-3.5" />
-                                          Key Investors
-                                        </p>
-                                        <div className="flex flex-wrap gap-2">
-                                          {round.investors.map(
-                                            (investor, i) => (
-                                              <span
-                                                key={i}
-                                                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-background border border-border/60 text-foreground/80 hover:border-primary/30 hover:text-primary transition-colors cursor-default"
-                                              >
-                                                {investor}
-                                              </span>
-                                            ),
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                  {round.source_url && (
-                                    <div className="mt-3 flex justify-end">
-                                      <a
-                                        href={round.source_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors group/link"
-                                      >
-                                        Source
-                                        <ExternalLink className="h-3 w-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                                      </a>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+              {fundraisingData?.confidence_level && (
+                <div className="flex items-center gap-2 bg-accent/30 px-3 py-1.5 rounded-full border border-border/50">
+                  <Activity className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-medium text-foreground">
+                    {fundraisingData.confidence_level}% Confidence
+                  </span>
+                  <span className="text-[10px] text-muted-foreground border-l border-border/50 pl-2 ml-1">
+                    Updated{" "}
+                    {new Date(fundraisingData.as_of_date).toLocaleDateString()}
+                  </span>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <DollarSign className="h-8 w-8 text-muted-foreground/30 mb-2" />
-              <p className="text-sm text-muted-foreground">
-                No fundraising data available
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <DemoDataWrapper>
-        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-accent/20">
-                <Briefcase className="h-5 w-5 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Hiring Activity</CardTitle>
-            </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-border/40">
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="h-4 w-4 text-primary" />
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Active Jobs
-                  </p>
+          <CardContent className="p-6">
+            {isFundraisingLoading ? (
+              <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                  <Loader2 className="relative h-10 w-10 text-primary animate-spin" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">
-                  {fallbackData.hiring.activeJobs}
+                <p className="text-sm font-medium text-muted-foreground">
+                  Gathering financial data...
                 </p>
               </div>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-border/40">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Recent Hires
+            ) : fundraisingError ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+                <div className="p-3 rounded-full bg-destructive/10">
+                  <AlertCircle className="h-6 w-6 text-destructive" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Data Unavailable</p>
+                  <p className="text-sm text-muted-foreground">
+                    Could not load fundraising information.
                   </p>
                 </div>
-                <p className="text-3xl font-bold text-foreground">
-                  {fallbackData.hiring.recentHires.toLocaleString()}
-                </p>
               </div>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-border/40">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Growth Rate
-                  </p>
-                </div>
-                <p className="text-3xl font-bold text-foreground">
-                  {fallbackData.hiring.growthRate}%
-                </p>
-              </div>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-border/40">
-                <p className="text-xs text-muted-foreground font-medium mb-3">
-                  Top Roles
-                </p>
-                <div className="space-y-1">
-                  {fallbackData.hiring.topRoles.map((role, index) => (
-                    <div
-                      key={index}
-                      className="text-xs font-medium text-foreground bg-background/50 px-2 py-1 rounded"
-                    >
-                      {role}
+            ) : fundraisingData ? (
+              <div className="space-y-8">
+                {/* Primary Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Valuation - Featured */}
+                  <div className="md:col-span-2 p-5 rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <TrendingUp className="h-16 w-16 text-primary rotate-12" />
                     </div>
-                  ))}
+                    <p className="text-sm font-medium text-primary mb-1 uppercase tracking-wider">
+                      Est. Valuation
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-4xl font-bold text-foreground tracking-tight">
+                        {fundraisingData.summary.valuation || "—"}
+                      </p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Latest post-money valuation
+                    </p>
+                  </div>
+
+                  {/* Total Funding */}
+                  <div className="md:col-span-2 p-5 rounded-2xl bg-linear-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-500/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <DollarSign className="h-16 w-16 text-indigo-500 -rotate-12" />
+                    </div>
+                    <p className="text-sm font-medium text-indigo-500 mb-1 uppercase tracking-wider">
+                      Total Funding
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-4xl font-bold text-foreground tracking-tight">
+                        {fundraisingData.summary.total_funding}
+                      </p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Total capital raised to date
+                    </p>
+                  </div>
                 </div>
+
+                {/* Secondary Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                      Latest Round Size
+                    </p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {fundraisingData.summary.latest_raised}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                      Total Rounds
+                    </p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {fundraisingData.summary.total_rounds}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                      Last Deal Date
+                    </p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {fundraisingData.summary.last_round}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                      Lead Investor
+                    </p>
+                    <p
+                      className="text-sm font-semibold text-foreground truncate"
+                      title={fundraisingData.summary.lead_investor}
+                    >
+                      {fundraisingData.summary.lead_investor || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Funding Rounds Timeline */}
+                {fundraisingData.rounds && fundraisingData.rounds.length > 0 && (
+                  <div className="pt-2">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                          <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        Investment History
+                      </h3>
+                      {fundraisingData.rounds.length > 3 && (
+                        <button
+                          onClick={() => setShowAllRounds(!showAllRounds)}
+                          className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 transition-all"
+                        >
+                          {showAllRounds
+                            ? "Show Recent"
+                            : `View All ${fundraisingData.rounds.length} Rounds`}
+                          {showAllRounds ? (
+                            <ChevronUp className="h-3.5 w-3.5" />
+                          ) : (
+                            <ChevronDown className="h-3.5 w-3.5 group-hover:translate-y-0.5 transition-transform" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="relative pl-2">
+                      {/* Vertical line running through the timeline */}
+                      <div className="absolute left-[19px] top-4 bottom-8 w-px bg-gradient-to-b from-border via-border to-transparent" />
+
+                      <div className="space-y-6">
+                        {(showAllRounds
+                          ? fundraisingData.rounds
+                          : fundraisingData.rounds.slice(0, 3)
+                        ).map((round, index) => {
+                          const roundDate = round.round_date
+                            ? new Date(round.round_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )
+                            : "Date Unknown";
+
+                          // Determine colors based on round type string for visual variety
+                          const isIPO = round.round_type
+                            .toLowerCase()
+                            .includes("ipo");
+
+                          return (
+                            <div key={index} className="relative group">
+                              <div className="flex gap-6">
+                                {/* Timeline Node */}
+                                <div className="relative pt-1">
+                                  <div
+                                    className={cn(
+                                      "w-10 h-10 rounded-xl flex items-center justify-center border-2 shadow-sm z-10 relative transition-transform group-hover:scale-110 duration-200",
+                                      index === 0
+                                        ? "bg-primary text-primary-foreground border-primary"
+                                        : "bg-card text-muted-foreground border-border group-hover:border-primary/50 group-hover:text-primary",
+                                    )}
+                                  >
+                                    {isIPO ? (
+                                      <TrendingUp className="h-5 w-5" />
+                                    ) : (
+                                      <DollarSign className="h-5 w-5" />
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Content Card */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="p-5 rounded-2xl bg-linear-to-r from-accent/5 to-transparent border border-border/60 hover:border-primary/20 hover:from-accent/10 hover:shadow-md transition-all duration-300">
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
+                                      <div>
+                                        <div className="flex items-center gap-3 mb-1">
+                                          <h4 className="text-base font-bold text-foreground">
+                                            {round.round_type}
+                                          </h4>
+                                          {index === 0 && (
+                                            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20">
+                                              Latest
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                          <Calendar className="h-3.5 w-3.5" />
+                                          {roundDate}
+                                        </div>
+                                      </div>
+                                      <div className="text-left md:text-right">
+                                        <div className="text-lg font-bold text-foreground">
+                                          {round.amount || "Undisclosed Amount"}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mt-0.5">
+                                          Raised
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {round.investors &&
+                                      round.investors.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-border/40">
+                                          <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                                            <Users className="h-3.5 w-3.5" />
+                                            Key Investors
+                                          </p>
+                                          <div className="flex flex-wrap gap-2">
+                                            {round.investors.map(
+                                              (investor, i) => (
+                                                <span
+                                                  key={i}
+                                                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-background border border-border/60 text-foreground/80 hover:border-primary/30 hover:text-primary transition-colors cursor-default"
+                                                >
+                                                  {investor}
+                                                </span>
+                                              ),
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                    {round.source_url && (
+                                      <div className="mt-3 flex justify-end">
+                                        <a
+                                          href={round.source_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors group/link"
+                                        >
+                                          Source
+                                          <ExternalLink className="h-3 w-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                                        </a>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <DollarSign className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  No fundraising data available
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
-      </DemoDataWrapper>
+      )}
 
-      <ClippedAreaChart
-        quarters={revenueData?.quarters}
-        summary={revenueData?.summary}
-        symbol={revenueData?.symbol}
-        isLoading={isRevenueLoading}
-        error={revenueError}
-      />
+      {(isRevenueLoading || (revenueData && revenueData.quarters && revenueData.quarters.length > 0)) && (
+        <ClippedAreaChart
+          quarters={revenueData?.quarters}
+          summary={revenueData?.summary}
+          symbol={revenueData?.symbol}
+          isLoading={isRevenueLoading}
+          error={revenueError}
+        />
+      )}
     </div>
   );
 }

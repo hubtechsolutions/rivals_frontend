@@ -18,6 +18,7 @@ import {
   CheckCircle,
   ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import {
   ComposedChart,
   Line,
@@ -545,7 +546,6 @@ export default function SocialMediaSentimentTab({
     youtubeData,
     facebookData,
     linkedinData,
-    isLoading,
     fetchAllSocialData,
     clearSocialMediaData,
     // Platform metrics from the new API
@@ -924,19 +924,15 @@ export default function SocialMediaSentimentTab({
       </div>
 
       {/* Platform Overview Table */}
-      <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Platform Overview</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Performance metrics across different social media platforms
-          </p>
-        </CardHeader>
-        <CardContent>
-          {isLoading && dynamicPlatforms.length === 0 ? (
-            <div className="flex items-center justify-center h-32">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : dynamicPlatforms.length > 0 ? (
+      {dynamicPlatforms.length > 0 && (
+        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Platform Overview</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Performance metrics across different social media platforms
+            </p>
+          </CardHeader>
+          <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -1020,14 +1016,9 @@ export default function SocialMediaSentimentTab({
                 </tbody>
               </table>
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-32 gap-2 text-muted-foreground">
-              <AlertCircle className="h-8 w-8" />
-              <p className="text-sm">Not enough data available</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Social Media Growth Chart */}
       {/* <DemoDataWrapper>
@@ -1039,148 +1030,141 @@ export default function SocialMediaSentimentTab({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Platform-Specific Metrics - 2/3 width */}
-        <Card className="lg:col-span-2 rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xl">
-                  {allPlatformsChartData
-                    ? "All Platforms Performance"
-                    : `${selectedPlatform} Performance`}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {allPlatformsChartData
-                    ? "Aggregated social media metrics across all platforms"
-                    : `Detailed engagement metrics for ${selectedPlatform}`}
-                </p>
-              </div>
-              {allPlatformMetrics.length > 0 && (
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10">
-                  <TrendingUp className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-semibold text-green-600">
-                    {averageEngagementRate.toFixed(2)}% Avg Engagement
-                  </span>
+        {(metricsLoading || allPlatformsChartData) && (
+          <Card className="lg:col-span-2 rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">
+                    {allPlatformsChartData
+                      ? "All Platforms Performance"
+                      : `${selectedPlatform} Performance`}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {allPlatformsChartData
+                      ? "Aggregated social media metrics across all platforms"
+                      : `Detailed engagement metrics for ${selectedPlatform}`}
+                  </p>
                 </div>
+                {allPlatformMetrics.length > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10">
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-semibold text-green-600">
+                      {averageEngagementRate.toFixed(2)}% Avg Engagement
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {metricsLoading ? (
+                <div className="flex items-center justify-center h-[350px]">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : allPlatformsChartData && (
+                // API data chart - shows all platforms together in vertical bars
+                <ResponsiveContainer width="100%" height={350}>
+                  <ComposedChart data={allPlatformsChartData}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      opacity={0.3}
+                    />
+                    <XAxis
+                      dataKey="platform"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={(value) => formatNumber(value)}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="hsl(var(--chart-1))"
+                      fontSize={12}
+                      tickFormatter={(value) => formatNumber(value)}
+                    />
+                    <Tooltip
+                      cursor={{ strokeDasharray: "3 3" }}
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "12px",
+                        padding: "12px",
+                      }}
+                      formatter={(value: number, name: string) => [
+                        formatNumber(value) + (name.includes("Rate") ? "%" : ""),
+                        name,
+                      ]}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      height={36}
+                      iconType="circle"
+                      formatter={(value) => (
+                        <span className="text-sm text-foreground capitalize">
+                          {value}
+                        </span>
+                      )}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="likes"
+                      name="Likes"
+                      stroke="hsl(var(--chart-2))"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="comments"
+                      name="Comments"
+                      stroke="hsl(var(--chart-3))"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="engagement"
+                      name="Engagement"
+                      fill="hsl(var(--chart-4))"
+                      stroke="hsl(var(--chart-4))"
+                      fillOpacity={0.1}
+                      strokeWidth={1}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="views"
+                      name="Views (Total)"
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: "hsl(var(--chart-1))" }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="engagementRate"
+                      name="Eng. Rate %"
+                      stroke="hsl(var(--chart-5, #22c55e))"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {metricsLoading ? (
-              <div className="flex items-center justify-center h-[350px]">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : allPlatformsChartData ? (
-              // API data chart - shows all platforms together in vertical bars
-              <ResponsiveContainer width="100%" height={350}>
-                <ComposedChart data={allPlatformsChartData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                    opacity={0.3}
-                  />
-                  <XAxis
-                    dataKey="platform"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickFormatter={(value) => formatNumber(value)}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    stroke="hsl(var(--chart-1))"
-                    fontSize={12}
-                    tickFormatter={(value) => formatNumber(value)}
-                  />
-                  <Tooltip
-                    cursor={{ strokeDasharray: "3 3" }}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "12px",
-                      padding: "12px",
-                    }}
-                    formatter={(value: number, name: string) => [
-                      formatNumber(value) + (name.includes("Rate") ? "%" : ""),
-                      name,
-                    ]}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    height={36}
-                    iconType="circle"
-                    formatter={(value) => (
-                      <span className="text-sm text-foreground capitalize">
-                        {value}
-                      </span>
-                    )}
-                  />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="likes"
-                    name="Likes"
-                    stroke="hsl(var(--chart-2))"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="comments"
-                    name="Comments"
-                    stroke="hsl(var(--chart-3))"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                  <Area
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="engagement"
-                    name="Engagement"
-                    fill="hsl(var(--chart-4))"
-                    stroke="hsl(var(--chart-4))"
-                    fillOpacity={0.1}
-                    strokeWidth={1}
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="views"
-                    name="Views (Total)"
-                    stroke="hsl(var(--chart-1))"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: "hsl(var(--chart-1))" }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="engagementRate"
-                    name="Eng. Rate %"
-                    stroke="hsl(var(--chart-5, #22c55e))"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
-            ) : (
-              // No data available
-              <div className="flex flex-col items-center justify-center h-[350px] gap-2 text-muted-foreground">
-                <AlertCircle className="h-12 w-12" />
-                <p className="text-lg font-medium">Not enough data available</p>
-                <p className="text-sm">
-                  Performance metrics will appear once data is collected
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Overall Sentiment - 1/3 width (from Reddit, Trustpilot, Google Reviews) */}
         <SentimentDonutChart data={overallSentimentChartData} />
@@ -1209,90 +1193,86 @@ export default function SocialMediaSentimentTab({
       </div>
 
       {/* Recent Posts */}
-      <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">
-            Recent {selectedPlatform} Posts
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Latest posts from {selectedPlatform}
-          </p>
-        </CardHeader>
-        <CardContent>
-          {socialPostsLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : socialPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {socialPosts.map((post: SocialPost) => (
-                <a
-                  key={post.id}
-                  href={post.post_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-2xl border border-border/60 overflow-hidden bg-linear-to-br from-card to-accent/5 hover:shadow-lg transition-all group"
-                >
-                  {post.image_url && (
-                    <img
-                      src={post.image_url}
-                      alt="Post"
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                        {post.post_type}
-                      </span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p className="text-sm text-foreground leading-relaxed line-clamp-3">
-                      {post.caption || "No caption"}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
-                        {formatNumber(post.likes_count || 0)}
+      {(socialPostsLoading || socialPosts.length > 0) && (
+        <Card className="rounded-3xl border border-border/60 bg-card/90 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">
+              Recent {selectedPlatform} Posts
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Latest posts from {selectedPlatform}
+            </p>
+          </CardHeader>
+          <CardContent>
+            {socialPostsLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : socialPosts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {socialPosts.map((post: SocialPost) => (
+                  <a
+                    key={post.id}
+                    href={post.post_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-2xl border border-border/60 overflow-hidden bg-linear-to-br from-card to-accent/5 hover:shadow-lg transition-all group"
+                  >
+                    {post.image_url && (
+                      <div className="relative w-full h-48">
+                        <Image
+                          src={post.image_url}
+                          alt="Post"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4" />
-                        {formatNumber(post.comments_count || 0)}
+                    )}
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                          {post.post_type}
+                        </span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
-                      {post.views_count && (
+                      <p className="text-sm text-foreground leading-relaxed line-clamp-3">
+                        {post.caption || "No caption"}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          {formatNumber(post.views_count)}
+                          <Heart className="h-4 w-4" />
+                          {formatNumber(post.likes_count || 0)}
                         </div>
-                      )}
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="h-4 w-4" />
+                          {formatNumber(post.comments_count || 0)}
+                        </div>
+                        {post.views_count && (
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-4 w-4" />
+                            {formatNumber(post.views_count)}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(post.post_timestamp).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          },
+                        )}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(post.post_timestamp).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        },
-                      )}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            // No data available
-            <div className="flex flex-col items-center justify-center h-64 gap-2 text-muted-foreground">
-              <AlertCircle className="h-12 w-12" />
-              <p className="text-lg font-medium">Not enough data available</p>
-              <p className="text-sm">
-                Recent posts will appear once data is collected for{" "}
-                {selectedPlatform}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
