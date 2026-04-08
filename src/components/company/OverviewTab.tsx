@@ -100,36 +100,69 @@ function PricingBox({
 // ─── Facility card ────────────────────────────────────────────────────────────
 function FacilityCard({ facility }: { facility: PickleballPricingPayload["facilities"][number] }) {
   const { pricing } = facility;
-  const boxes = [
-    {
+  const boxes: Array<React.ComponentProps<typeof PricingBox>> = [];
+
+  if (pricing.hourly_price) {
+    boxes.push({
       label: "Hourly / Court",
       icon: <DollarSign className="h-4 w-4 text-violet-500" />,
       ...pricing.hourly_price,
       accentClass: "bg-violet-500/5 hover:bg-violet-500/10",
       iconBgClass: "bg-violet-500/10 border-violet-500/20",
-    },
-    {
+    } as React.ComponentProps<typeof PricingBox>);
+  }
+
+  if (pricing.open_play) {
+    boxes.push({
       label: "Open Play",
       icon: <Users className="h-4 w-4 text-sky-500" />,
       ...pricing.open_play,
       accentClass: "bg-sky-500/5 hover:bg-sky-500/10",
       iconBgClass: "bg-sky-500/10 border-sky-500/20",
-    },
-    {
-      label: "Membership",
-      icon: <Activity className="h-4 w-4 text-emerald-500" />,
-      ...pricing.membership,
-      accentClass: "bg-emerald-500/5 hover:bg-emerald-500/10",
-      iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
-    },
-    {
+    } as React.ComponentProps<typeof PricingBox>);
+  }
+
+  if (pricing.membership) {
+    const mem = pricing.membership as unknown as { monthly?: Record<string, unknown>; annual?: Record<string, unknown> } & Record<string, unknown>;
+    if (mem.monthly || mem.annual) {
+      if (mem.monthly) {
+        boxes.push({
+          label: "Monthly Member",
+          icon: <Activity className="h-4 w-4 text-emerald-500" />,
+          ...mem.monthly,
+          accentClass: "bg-emerald-500/5 hover:bg-emerald-500/10",
+          iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
+        } as React.ComponentProps<typeof PricingBox>);
+      }
+      if (mem.annual) {
+        boxes.push({
+          label: "Annual Member",
+          icon: <Activity className="h-4 w-4 text-emerald-500" />,
+          ...mem.annual,
+          accentClass: "bg-emerald-500/5 hover:bg-emerald-500/10",
+          iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
+        } as React.ComponentProps<typeof PricingBox>);
+      }
+    } else {
+      boxes.push({
+        label: "Membership",
+        icon: <Activity className="h-4 w-4 text-emerald-500" />,
+        ...mem,
+        accentClass: "bg-emerald-500/5 hover:bg-emerald-500/10",
+        iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
+      } as React.ComponentProps<typeof PricingBox>);
+    }
+  }
+
+  if (pricing.extra_fee) {
+    boxes.push({
       icon: <Tag className="h-4 w-4 text-amber-500" />,
       ...pricing.extra_fee,
-      label: pricing.extra_fee.label || "Extra Fee",
+      label: (pricing.extra_fee as { label?: string }).label || "Extra Fee",
       accentClass: "bg-amber-500/5 hover:bg-amber-500/10",
       iconBgClass: "bg-amber-500/10 border-amber-500/20",
-    },
-  ];
+    } as React.ComponentProps<typeof PricingBox>);
+  }
   const hasAny = boxes.some((b) => b.min != null || b.max != null || b.notes);
 
   return (
