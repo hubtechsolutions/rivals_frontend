@@ -3,6 +3,27 @@
 import { motion } from "motion/react"
 import { WorldMap } from "@/components/ui/world-map"
 
+/* ── competitor signal routes between global business hubs ── */
+const ROUTES = [
+  // Americas corridor
+  { start: { lat: 37.7749, lng: -122.4194, label: "San Francisco" },
+    end:   { lat: 40.7128, lng:  -74.0060, label: "New York"      } },
+  // Trans-Atlantic
+  { start: { lat: 40.7128, lng:  -74.0060, label: "New York"    },
+    end:   { lat: 51.5074, lng:   -0.1278, label: "London"       } },
+  // Europe → India
+  { start: { lat: 51.5074, lng:   -0.1278, label: "London"      },
+    end:   { lat: 28.6139, lng:   77.2090, label: "New Delhi"    } },
+  // India → Singapore
+  { start: { lat: 28.6139, lng:   77.2090, label: "New Delhi"   },
+    end:   { lat:  1.3521, lng:  103.8198, label: "Singapore"    } },
+  // Singapore → Tokyo
+  { start: { lat:  1.3521, lng:  103.8198, label: "Singapore"   },
+    end:   { lat: 35.6762, lng:  139.6503, label: "Tokyo"        } },
+  // US → Brazil
+  { start: { lat: 37.7749, lng: -122.4194, label: "San Francisco" },
+    end:   { lat: -23.5505, lng: -46.6333, label: "São Paulo"    } },
+]
 
 export default function GlobalSection() {
   return (
@@ -86,7 +107,7 @@ export default function GlobalSection() {
               "radial-gradient(ellipse 80% 75% at 50% 50%, black 30%, transparent 100%)",
           }}
         >
-          <WorldMap dots={[]} lineColor="#a78bfa" />
+          <WorldMap dots={ROUTES} lineColor="#a78bfa" />
         </motion.div>
 
       </div>
