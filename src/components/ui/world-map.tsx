@@ -44,6 +44,20 @@ export function WorldMap({
     return `M ${start.x} ${start.y} Q ${midX} ${midY} ${end.x} ${end.y}`
   }
 
+  // Collect every endpoint, deduped by (lat, lng) — cities reused across
+  // multiple routes (e.g. NYC as both an arrival and departure) would
+  // otherwise render stacked dots with overlapping pulsing rings.
+  const seen = new Set<string>()
+  const endpoints: { x: number; y: number; key: string }[] = []
+  for (const { start, end } of dots) {
+    for (const { lat, lng } of [start, end]) {
+      const key = `${lat},${lng}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      endpoints.push({ ...projectPoint(lat, lng), key })
+    }
+  }
+
   return (
     <div className="w-full aspect-[2/1] relative select-none">
       {/* dotted base map */}
@@ -97,22 +111,17 @@ export function WorldMap({
           )
         })}
 
-        {/* endpoint dots */}
-        {dots.map((dot, i) => (
-          [
-            { pt: projectPoint(dot.start.lat, dot.start.lng), key: `start-${i}` },
-            { pt: projectPoint(dot.end.lat,   dot.end.lng),   key: `end-${i}`   },
-          ].map(({ pt, key }) => (
-            <g key={key} filter="url(#dot-glow)">
-              {/* solid core */}
-              <circle cx={pt.x} cy={pt.y} r="2.2" fill={lineColor} />
-              {/* pulsing ring */}
-              <circle cx={pt.x} cy={pt.y} r="2.2" fill={lineColor} opacity="0.6">
-                <animate attributeName="r"       from="2.2" to="9"  dur="1.8s" begin="0s" repeatCount="indefinite" />
-                <animate attributeName="opacity" from="0.6" to="0"  dur="1.8s" begin="0s" repeatCount="indefinite" />
-              </circle>
-            </g>
-          ))
+        {/* endpoint dots — one per unique city */}
+        {endpoints.map(({ x, y, key }) => (
+          <g key={key} filter="url(#dot-glow)">
+            {/* solid core */}
+            <circle cx={x} cy={y} r="2.2" fill={lineColor} />
+            {/* pulsing ring */}
+            <circle cx={x} cy={y} r="2.2" fill={lineColor} opacity="0.6">
+              <animate attributeName="r"       from="2.2" to="9"  dur="1.8s" begin="0s" repeatCount="indefinite" />
+              <animate attributeName="opacity" from="0.6" to="0"  dur="1.8s" begin="0s" repeatCount="indefinite" />
+            </circle>
+          </g>
         ))}
       </svg>
     </div>

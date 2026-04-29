@@ -9,7 +9,6 @@ const MARKERS = [
   { location: [51.51, -0.13]   as [number, number], size: 0.04,  id: "lon" },
   { location: [35.68, 139.65]  as [number, number], size: 0.04,  id: "tok" },
   { location: [1.35,  103.82]  as [number, number], size: 0.035, id: "sin" },
-  { location: [48.86, 2.35]    as [number, number], size: 0.028, id: "par" },
   { location: [28.61, 77.21]   as [number, number], size: 0.03,  id: "del" },
   { location: [31.23, 121.47]  as [number, number], size: 0.032, id: "sha" },
   { location: [-33.87, 151.21] as [number, number], size: 0.025, id: "syd" },
