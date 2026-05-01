@@ -8,16 +8,10 @@ import {
 } from "lucide-react"
 import { Radar, RadarIconContainer } from "@/components/ui/radar-effect"
 
-/* ─── BentoGrid — 6-col grid, 2 explicit rows ───────────────────────────── */
+/* ─── BentoGrid — single column on mobile, 6-col 2-row on lg+ ──────────── */
 function BentoGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="grid gap-3"
-      style={{
-        gridTemplateColumns: "repeat(6, 1fr)",
-        gridTemplateRows: "360px 280px",
-      }}
-    >
+    <div className="grid gap-3 grid-cols-1 lg:grid-cols-6 lg:[grid-template-rows:360px_280px]">
       {children}
     </div>
   )
@@ -32,10 +26,10 @@ function BentoCard({
   colSpan?: number
   className?: string
 }) {
+  const lgColSpanClass = colSpan === 3 ? "lg:col-span-3" : "lg:col-span-2"
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-violet-400/10 bg-white/[0.03] backdrop-blur-sm ${className}`}
-      style={{ gridColumn: `span ${colSpan}` }}
+      className={`relative overflow-hidden rounded-2xl border border-violet-400/10 bg-white/[0.03] backdrop-blur-sm col-span-1 ${lgColSpanClass} h-[340px] lg:h-auto ${className}`}
     >
       {children}
     </div>
@@ -586,7 +580,7 @@ function SectionHeader() {
 /* ─── Main export ────────────────────────────────────────────────────────── */
 export default function BentoSection() {
   return (
-    <section className="relative w-full bg-[#07060c] py-24 px-6 lg:px-12 overflow-hidden">
+    <section className="relative w-full bg-[#07060c] py-16 px-4 sm:px-6 lg:py-24 lg:px-12 overflow-hidden">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
